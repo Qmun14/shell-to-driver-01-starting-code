@@ -58,8 +58,8 @@ const router = Router();
 
 // Get list of products products
 router.get('/', (req, res, next) => {
-  // const queryPage = req.query.page;
-  // const pageSize = 5;
+  const queryPage = req.query.page;
+  const pageSize = 1;
   // let resultProducts = [...products];
   // if (queryPage) {
   //   resultProducts = products.slice(
@@ -71,7 +71,11 @@ router.get('/', (req, res, next) => {
   db.getDb()
         .db()
         .collection("products")
-        .find().forEach(product => {
+        .find()
+        // .sort({price: -1})
+        // .skip((queryPage -1) * pageSize)
+        // .limit(pageSize)
+        .forEach(product => {
           product.price = product.price.toString();
           products.push(product)
         })
