@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const router = Router();
+const db = require('../db');
+
 
 const createToken = () => {
   return jwt.sign({}, 'secret', { expiresIn: '1h' });
@@ -26,17 +28,29 @@ router.post('/signup', (req, res, next) => {
   // Hash password before storing it in database => Encryption at Rest
   bcrypt
     .hash(pw, 12)
-    .then(hashedPW => {
-      // Store hashedPW in database
-      console.log(hashedPW);
-      const token = createToken();
-      res
-        .status(201)
-        .json({ token: token, user: { email: 'dummy@dummy.com' } });
+    .then((hashedPW) => {
+      db.getDb()
+        .db()
+        .collection('users')
+        .insertOne({
+          email: email,
+          password: hashedPW,
+        })
+        .then((result) => {
+          console.log(result);
+          const token = createToken();
+          res
+            .status(201)
+            .json({ token: token, user: { email: email } });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).json({ message: "Creating the user failed." });
+        });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
-      res.status(500).json({ message: 'Creating the user failed.' });
+      res.status(500).json({ message: "Creating the user failed." });
     });
   // Add user to database
 });
