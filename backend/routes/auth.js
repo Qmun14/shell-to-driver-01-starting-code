@@ -17,23 +17,27 @@ router.post('/login', (req, res, next) => {
   // If yes, create token and return it to client
   db.getDb()
     .db()
-    .collection('users').findOne({email : email})
-    .then( userDoc =>  {
+    .collection("users")
+    .findOne({ email: email })
+    .then((userDoc) => {
       return bcrypt.compare(pw, userDoc.password);
-    }).then(result => {
+    })
+    .then((result) => {
       if (!result) {
         throw Error();
       }
       const token = createToken();
       res
-      .status(200)
-      .json({ message: 'Authentication succeded!', token: token });
+        .status(200)
+        .json({ message: "Authentication succeded!", token: token });
     })
-    .catch( err => {
+    .catch((err) => {
       res
-    .status(401)
-    .json({ message: 'Authentication failed, invalid username or password.' });
-    })
+        .status(401)
+        .json({
+          message: "Authentication failed, invalid username or password.",
+        });
+    });
   // res.status(200).json({ token: token, user: { email: 'dummy@dummy.com' } });
 });
 
